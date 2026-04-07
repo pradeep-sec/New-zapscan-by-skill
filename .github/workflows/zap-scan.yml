@@ -1,0 +1,75 @@
+name: ZAP Security Scan
+
+# ──────────────────────────────────────────────
+# Triggers
+# ──────────────────────────────────────────────
+on:
+  push:
+    branches:
+      - main                   # ← change to your default branch if needed
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:           # allows manual trigger from the Actions tab
+    inputs:
+      target_url:
+        description: "URL to scan (overrides the default below)"
+        required: false
+        default: ""
+
+# ──────────────────────────────────────────────
+# Permissions
+# Only read access needed — no issue writing
+# ──────────────────────────────────────────────
+permissions:
+  contents: read
+
+jobs:
+  zap-baseline-scan:
+    name: OWASP ZAP Baseline Scan
+    runs-on: ubuntu-latest      # ZAP Docker image requires Linux
+
+    steps:
+      # 1. Check out the repo (needed so the rules file is available)
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Run ZAP baseline scan
+      #    Docs: https://github.com/zaproxy/action-baseline
+      - name: Run ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.0.5
+        with:
+          # ── Target ──────────────────────────────────────────────────────
+          target: ${{ github.event.inputs.target_url || 'http://testfire.net' }}
+
+          # ── Report ──────────────────────────────────────────────────────
+          # HTML report file name (saved to workspace root by ZAP)
+          report_html: zap-report.html
+
+          # ── Behaviour ───────────────────────────────────────────────────
+          # Do NOT open GitHub issues — keeps permissions minimal
+          allow_issue_writing: false
+
+          # Fail the workflow if ZAP exits with code 2 (High-severity alerts)
+          # Set to false if you only want informational scans
+          fail_action: true
+
+          # ── Optional: rule suppressions ─────────────────────────────────
+          # Uncomment the line below if you add a zap-rules.tsv to your repo
+          # rules_file_name: zap-rules.tsv
+
+          # ── Optional: extra command-line flags ───────────────────────────
+          # -a  auto-adjust (reduce false positives on static sites)
+          # -I  ignore all warnings, always exit 0 (overrides fail_action)
+          # -j  also write a JSON report (zap-report.json)
+          cmd_options: '-a'
+
+      # 3. Upload the HTML report as a workflow artifact
+      #    (available for 30 days under Actions → your run → Artifacts)
+      - name: Upload ZAP HTML Report
+        if: always()            # upload even if the scan step fails
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-report-${{ github.run_number }}
+          path: zap-report.html
+          retention-days: 30

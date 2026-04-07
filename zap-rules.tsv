@@ -1,0 +1,14 @@
+# zap-rules.tsv — ZAP alert suppression rules
+#
+# Use this file to silence known false positives or accepted risks.
+# Format: <alert-id>  <IGNORE|WARN|FAIL>  <optional URL regex>
+#
+# To use: uncomment the rules_file_name line in the workflow, then add rows below.
+# Find alert IDs in the ZAP HTML report (the number in parentheses after each alert name).
+#
+# Examples (uncomment to enable):
+#
+# 10096  IGNORE    # Timestamp Disclosure — low signal, often noise
+# 10020  IGNORE    # Missing Anti-clickjacking Header — acceptable if site has no forms
+# 10038  IGNORE    # Content Security Policy (CSP) Header Not Set — informational only
+# 90022  IGNORE    # Application Error Disclosure

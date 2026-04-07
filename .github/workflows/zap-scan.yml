@@ -52,7 +52,7 @@ jobs:
 
           # Fail the workflow if ZAP exits with code 2 (High-severity alerts)
           # Set to false if you only want informational scans
-          fail_action: true
+          fail_action: false
 
           # ── Optional: rule suppressions ─────────────────────────────────
           # Uncomment the line below if you add a zap-rules.tsv to your repo

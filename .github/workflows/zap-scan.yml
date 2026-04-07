@@ -37,7 +37,7 @@ jobs:
       # 2. Run ZAP baseline scan
       #    Docs: https://github.com/zaproxy/action-baseline
       - name: Run ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.0.5
+        uses: zaproxy/action-baseline@v0.15.0
         with:
           # ── Target ──────────────────────────────────────────────────────
           target: ${{ github.event.inputs.target_url || 'http://testfire.net' }}
